@@ -22,7 +22,8 @@
     
     input[type="text"]{
          width: 40px;
-         font-size: 13px;
+         /*height:15px;*/
+         /*font-size: 10px;*/
          padding: 0px;
     }
 
@@ -33,6 +34,16 @@
     .right{
     	float: right;
     }
+
+    .item{
+      margin:-0.1em;
+      height:8px;
+    }
+
+    .range{
+      margin-bottom: 0.8em;
+    }
+
    </style>
 
    <body onload="init();">
@@ -51,62 +62,60 @@
           <div id="controls">
             <h1>Controls:</h1>
               <div class="left">
-                Simulate (q):               <input class="right" type="checkbox" id="simulate" onchange="toggleSim()" checked></br>
-                Show simulation (w):        <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked></br>
-                Auto show generations (e):  <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked></br>
-                Follow leader (t):          <input class="right" type="checkbox" onchange="toggleFollowLeader()" id="followl" checked></br>
-                Follow in y (y):            <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></br>
+                <div class="item">Simulate (q):               <input class="right" type="checkbox" id="simulate" onchange="toggleSim()" checked> </div></br>
+                <div class="item">Show simulation (w):        <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked></div></br>
+                <div class="item">Auto show generations (e):  <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked></div></br>
+                <div class="item">Follow leader (t):          <input class="right" type="checkbox" onchange="toggleFollowLeader()" id="followl" checked></div></br>
+                <div class="item">Follow in y (y):            <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></div></br>
 
-                Scale: <span><input id="scaleRange" type ="range" min="0" max="100" step="5" value="30" 
+                <div class="item range">Scale:<input id="scaleRange" type ="range" min="0" max="100" step="5" value="30" 
                 oninput="scaleValue.value = scaleRange.value"
                 onchange="updateScale(this.value)">
-                <output id="scaleValue">30</output> </span></br>
+                <output id="scaleValue">30</output></div></br>
 
+                <div class="item">
                 <input type="button" value="prev gen (a)" onclick="genAlg.showPrevGen()"> 
                 <input class="right" type="button" value="next gen (s)" onclick="genAlg.showNextGen()">
+                </div>
               </div>
           </div>
           <div id = "word">
             <h1> World </h1>
-              Terrain: <span><input id="terrainRange" type ="range" min="0" max="5.0" step="0.5" value="0" 
+              <div class="item range">Terrain: <input id="terrainRange" type ="range" min="0" max="5.0" step="0.5" value="0" 
               oninput="terrainValue.value = terrainRange.value"
               onchange="updateTerrainValue(this.value)">
-              <output id="terrainValue">0</output> </span></br>
+              <output id="terrainValue">0</output> </div></br>
 
-              Gravity: <span><input id="gravityRange" type ="range" min="1" max="50" step="1" value="10" 
+              <div class="item range" >Gravity: <input id="gravityRange" type ="range" min="1" max="50" step="1" value="10" 
               oninput="gravityValue.value = gravityRange.value"
               onchange="updateGravityValue(this.value)">
-              <output id="gravityValue">10</output> </span></br>
+              <output id="gravityValue">10</output> </div></br>
 
-              Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></br>
+              <div class="item"> Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></div></br>
           </div>
           <div id="parameters">
             <h1>Parameters:</h1>
             <div class="left">
-            <p>
-              <span>Population:    				 	        <input type="text"  class="right" id="numPop" value="30"></span></br>
-              <span>Mutation strenght: (%)          <input type="text"  class="right" id="mstr"   value="10"></span></br>
-              <span>Mutation rate: (%)              <input type="text"  class="right" id="mrate"  value="10"></span></br>
-              <span>Recombination rate: (%)         <input type="text"  class="right" id="rrate"  value="80"></span></br>
-              <span>Brain Recombination rate: (%)   <input type="text"  class="right" id="brrate"  value="1"></span></br>
-              <span>Lifetime:                       <input type="text"  class="right" id="life"   value="60"></span></br>
-              <span>Elit:                           <input type="text"  class="right" id="elit"   value="2"></span></br>
-            </p>
+              <div class="item"> Population:    				 	      <input type="text"  class="right" id="numPop" value="30"></div></br>
+              <div class="item">Mutation strenght: (%)          <input type="text"  class="right" id="mstr"   value="10"></div></br>
+              <div class="item">Mutation rate: (%)              <input type="text"  class="right" id="mrate"  value="10"></div></br>
+              <div class="item">Recombination rate: (%)         <input type="text"  class="right" id="rrate"  value="80"></div></br>
+              <div class="item">Brain Recombination rate: (%)   <input type="text"  class="right" id="brrate"  value="1"></div></br>
+              <div class="item">Lifetime:                       <input type="text"  class="right" id="life"   value="60"></div></br>
+              <div class="item">Elit:                           <input type="text"  class="right" id="elit"   value="2"></div></br>
             </div>
           
           <div id="weights">
-              <h1>Weights:</h1>
+            <h1>Weights:</h1>
             <div class="left">
-            <p>
-              <span>Standing still:       <input type="text" class="w right" id="w1" value="0.0"> </span></br>
-              <span>Progress in x:        <input type="text" class="w right" id="w2" value="0.4"></span></br>
-              <span>Speed in x:           <input type="text" class="w right" id="w3" value="0.2"></span></br>
-              <span>Speed in y:           <input type="text" class="w right" id="w4" value="0.0"></span></br>
-              <span>Final x pos:          <input type="text" class="w right" id="w5" value="0.3"></span></br>
-              <span>Main body off ground: <input type="text" class="w right" id="w6" value="0.1"></span></br>
-              <span>Accumelated height:   <input type="text" class="w right" id="w7" value="0.0"></span></br>
-              <span>Highest y pos:        <input type="text" class="w right" id="w8" value="0.0"></span></br>
-            </p>
+              <div class="item">Standing still:       <input type="text" class="w right" id="w1" value="0.0"> </div></br>
+              <div class="item">Progress in x:        <input type="text" class="w right" id="w2" value="0.4"></div></br>
+              <div class="item">Speed in x:           <input type="text" class="w right" id="w3" value="0.2"></div></br>
+              <div class="item">Speed in y:           <input type="text" class="w right" id="w4" value="0.0"></div></br>
+              <div class="item">Final x pos:          <input type="text" class="w right" id="w5" value="0.3"></div></br>
+              <div class="item">Main body off ground: <input type="text" class="w right" id="w6" value="0.1"></div></br>
+              <div class="item">Accumelated height:   <input type="text" class="w right" id="w7" value="0.0"></div></br>
+              <div class="item">Highest y pos:        <input type="text" class="w right" id="w8" value="0.0"></div></br>
               <input type="button" id="start" value="Start! (n)" onclick="startSimulation();">
               <input type="button" id="start" value="Change (m)" onclick="change();">
             </div>
