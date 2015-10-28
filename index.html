@@ -51,25 +51,24 @@
           <div id="controls">
             <h1>Controls:</h1>
               <div class="left">
-                Show simulation (q):      </br>
-                Simulate (w):             </br>
-                Auto show generations (e):</br>
-                Follow in y (y):          </br>
+                Simulate (q):               <input class="right" type="checkbox" id="simulate" onchange="toggleSim()" checked></br>
+                Show simulation (w):        <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked></br>
+                Auto show generations (e):  <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked></br>
+                Follow leader (t):          <input class="right" type="checkbox" onchange="toggleFollowLeader()" id="followl" checked></br>
+                Follow in y (y):            <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></br>
+
+                Scale: <span><input id="scaleRange" type ="range" min="0" max="100" step="5" value="30" 
+                oninput="scaleValue.value = scaleRange.value"
+                onchange="updateScale(this.value)">
+                <output id="scaleValue">30</output> </span></br>
+
                 <input type="button" value="prev gen (a)" onclick="genAlg.showPrevGen()"> 
                 <input class="right" type="button" value="next gen (s)" onclick="genAlg.showNextGen()">
               </div>
-              <div class="left">
-               <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked> </br>
-               <input class="right" type="checkbox" id="simulate" onchange="toggleSim()" checked> </br>
-               <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked> </br>
-               <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></br>
-                
-              </div>
           </div>
-          
-          <div id="parameters">
-            <h1>Parameters:</h1>
-              Terrain: <span><input id="terrainRange" type ="range" min="0" max="0.5" step="0.05" value="0" 
+          <div id = "word">
+            <h1> World </h1>
+              Terrain: <span><input id="terrainRange" type ="range" min="0" max="5.0" step="0.5" value="0" 
               oninput="terrainValue.value = terrainRange.value"
               onchange="updateTerrainValue(this.value)">
               <output id="terrainValue">0</output> </span></br>
@@ -79,9 +78,13 @@
               onchange="updateGravityValue(this.value)">
               <output id="gravityValue">10</output> </span></br>
 
+              Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></br>
+          </div>
+          <div id="parameters">
+            <h1>Parameters:</h1>
             <div class="left">
             <p>
-              <span>Population:    				 	<input type="text"  class="right" id="numPop" value="30"></span></br>
+              <span>Population:    				 	        <input type="text"  class="right" id="numPop" value="30"></span></br>
               <span>Mutation strenght: (%)          <input type="text"  class="right" id="mstr"   value="10"></span></br>
               <span>Mutation rate: (%)              <input type="text"  class="right" id="mrate"  value="10"></span></br>
               <span>Recombination rate: (%)         <input type="text"  class="right" id="rrate"  value="80"></span></br>
