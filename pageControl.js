@@ -1,6 +1,12 @@
 var genAlg, simworld, drawworld, pos;
 var showSim = true;
 var followY = false;
+var followLeader = true;
+var wallsCreated = false;
+var scale = 30;
+var debugDraw, debugDraw2;
+var dwalls, swalls;
+
 function init() {
         Math.seedrandom();
         simworld =  new b2World(new b2Vec2(0,10),true);
@@ -8,6 +14,9 @@ function init() {
         pos = new b2Vec2(8,13);
 
         genAlg = new GeneticAlgorithm(simworld, drawworld, pos);
+
+        swalls = new Array();
+        dwalls = new Array();
 
         createGround(0);
 
@@ -18,16 +27,16 @@ function init() {
         // var genDrwCanvas = document.getElementById("drawGenerationDisplay");
         // var highscoreCanvas = document.getElementById("highscore");
 
-        var debugDraw = new b2DebugDraw();
+        debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(simCanvas.getContext("2d"));
-        debugDraw.SetDrawScale(30.0);
+        debugDraw.SetDrawScale(scale);
         debugDraw.SetFillAlpha(0.5);
         debugDraw.SetLineThickness(1.0);
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
 
-        var debugDraw2 = new b2DebugDraw();
+        debugDraw2 = new b2DebugDraw();
         debugDraw2.SetSprite(drwCanvas.getContext("2d"));
-        debugDraw2.SetDrawScale(30.0);
+        debugDraw2.SetDrawScale(scale);
         debugDraw2.SetFillAlpha(0.5);
         debugDraw2.SetLineThickness(1.0);
         debugDraw2.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
@@ -35,16 +44,16 @@ function init() {
         simworld.SetDebugDraw(debugDraw);
         drawworld.SetDebugDraw(debugDraw2);
 
-        window.setInterval(function(){update(simworld ,simCanvas, genAlg.simulation.camera, showSim); },  1000 / 60);
-        window.setInterval(function(){update(drawworld,drwCanvas, genAlg.draw.camera, true);},      1000 / 60);
+        window.setInterval(function(){update(simworld ,simCanvas, true ); },  1000 / 60);
+        window.setInterval(function(){update(drawworld,drwCanvas, false);},      1000 / 60);
         // window.setInterval(function(){updateHighscore(highscoreCanvas, genAlg.highscore);}, 1000/60);
 
         document.addEventListener('keydown', function(event) {
-          if(event.keyCode == 81) {
+          if(event.keyCode == 87) {
             var checked = document.getElementById("showSim").checked;
             document.getElementById("showSim").checked = !checked;
             toggleShowSim();
-          }else if(event.keyCode == 87){
+          }else if(event.keyCode == 81){
             var checked = document.getElementById("simulate").checked;
             document.getElementById("simulate").checked = !checked;
             toggleSim();    
@@ -153,26 +162,81 @@ function init() {
     // genAlg.simulation.createPoulation();
   if(createCreatureAgain)
     genAlg.draw.showGen();
+
+  if(walls)
+    createWalls();
 }
 
-function update(world,canvas, camera, show){
+function toggleWalls(){
+  wallsCreated = !wallsCreated;
+  createWalls()
+}
+
+function createWalls(){
+  if(wallsCreated){
+      var fixDef = new b2FixtureDef;
+      fixDef.density = 1.0;
+      fixDef.friction = 2.0;
+      fixDef.restitution = 0.2;
+  
+      var bodyDef = new b2BodyDef;        
+      bodyDef.type = b2Body.b2_staticBody;
+      fixDef.shape = new b2PolygonShape;
+      fixDef.shape.SetAsBox(0.2, 50);
+      fixDef.filter.groupIndex = 1;
+
+      bodyDef.position.x = pos.x+20;
+      bodyDef.position.y = -37;
+
+      var b = simworld.CreateBody(bodyDef);
+      b.CreateFixture(fixDef);
+      swalls.push(b);
+      b = drawworld.CreateBody(bodyDef);
+      b.CreateFixture(fixDef);
+      dwalls.push(b);
+
+      bodyDef.position.x = pos.x-20;
+      b = simworld.CreateBody(bodyDef);
+      b.CreateFixture(fixDef);
+      swalls.push(b);
+      b = drawworld.CreateBody(bodyDef);
+      b.CreateFixture(fixDef);
+      dwalls.push(b);
+  }else{
+    for(var i=0; i<swalls.length; i++){
+      simworld.DestroyBody(swalls[i]);
+    }
+
+    for(var i=0; i<dwalls.length; i++){
+      drawworld.DestroyBody(dwalls[i]);
+    }
+
+    swalls.length = 0;
+    dwalls.length = 0;
+  }
+}
+
+function update(world,canvas, isSim){
     world.Step(
         1 / 60      //frame-rate
         ,  15       //velocity iterations
         ,  15       //position iterations
     );
 
+    var camera = (isSim) ? genAlg.simulation.camera : genAlg.draw.camera
     var ctx = canvas.getContext("2d")
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    
-    if(followY){
-      ctx.translate(-camera.x*30+canvas.width/2, -(camera.y-pos.y/2+2)*30+canvas.height/2-10);
-    }else{
-      ctx.translate(-camera.x*30+canvas.width/2, -5);
-    }
 
-    if(show == true) world.DrawDebugData();
+    var x, y;
+    y = (followY)? -(camera.y)*scale+canvas.height/2: -(pos.y-100/scale)*scale+canvas.height/2;
+    x = (followLeader) ? -camera.x*scale+canvas.width/2 : -pos.x*scale+canvas.width/2;
+    // y = 0;
+    // x = 0;
+    // if(!isSim)
+    ctx.translate(x,y);
+
+    if(!isSim || (isSim && showSim)) world.DrawDebugData();
     world.ClearForces();
     ctx.restore();
 
@@ -184,7 +248,7 @@ function updateGenerationDisplay(canvas, txt, g){
 }
 
 function updateTerrainValue(val){
-  createGround(val);
+  createGround(val/10.0);
 }
 
 function updateGravityValue(val){
@@ -247,10 +311,22 @@ function toggleFollowY(){
   followY = !followY; 
 }
 
+function toggleFollowLeader(){
+  followLeader = !followLeader;
+}
+
 function toggleAuto(){
   genAlg.draw.auto = !genAlg.draw.auto; 
 }
 
 function toggleSim(){
   genAlg.toggleSimulation();
+}
+
+function updateScale(val){
+  if (val==0) val = 1;
+  console.log("updateing scale")
+  scale = val;
+  debugDraw.SetDrawScale(val); 
+  debugDraw2  .SetDrawScale(val); 
 }
