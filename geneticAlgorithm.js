@@ -108,21 +108,22 @@ function GeneticAlgorithm(sworld, dworld, pos){
 
 	this.eval = function(){
 		var sensorChecks = this.simulation.sensorsChecked; 
-		var maxStill = 0, maxProgess = 0, maxSpeedX = 0, maxSpeedY = 0, maxXpos = 0,
+		var maxStill = 0, maxProgess = 0, maxSpeedX = 0, maxSpeedY = 0, maxXpos = 0, maxYPos = 0,
 			maxNonContact = 0, maxAccumHeight = 0, maxYpos = 0;
 		for(var i=0; i<this.simulation.population.length; i++){
 			var c = this.simulation.population[i];
 
-			var still 		= (sensorChecks - Math.abs(c.progress));
+			// var still 		= (sensorChecks - Math.abs(c.progress));
 			var progress 	= (sensorChecks + c.progress);
+			var nonContact 	= (sensorChecks - c.contact);
 			var speedX 		= (c.speedX/sensorChecks);
 			var speedY 		= (c.speedY/sensorChecks);
-			var xpos 		= (c.position().x);
-			var nonContact 	= (sensorChecks - c.contact);
+			var xpos 		= Math.abs(c.position().x-this.pos.x);
+			var ypos 		= Math.abs(c.position().y-this.pos.y);
 			var accumHeight = c.accHeight;
 			var ypos  		= c.maxHeight;
  
-			maxStill 		= (maxStill>still) 				? maxStill:still;
+			// maxStill 		= (maxStill>still) 				? maxStill:still;
 			maxProgess 		= (maxProgess>progress) 		? maxProgess:progress;
 			maxSpeedX 		= (maxSpeedX>speedX) 			? maxSpeedX:speedX;
 			maxSpeedY 		= (maxSpeedY>speedY) 			? maxSpeedY:speedY;
@@ -134,12 +135,13 @@ function GeneticAlgorithm(sworld, dworld, pos){
 
 		for(var i=0; i<this.simulation.population.length; i++){
 			var c = this.simulation.population[i];
-			var evalFitness = 	[(sensorChecks - Math.abs(c.progress))/maxStill,	//standing still
-								 (sensorChecks + c.progress)/(maxProgess),			//progressing in x
+			var evalFitness = 	[													
+								 (sensorChecks + c.progress)/(maxProgess),			//progression in x
+								 (sensorChecks - c.contact)/maxNonContact,			//main body off ground
 								 ((c.speedX/sensorChecks))/(maxSpeedX),				//speed in x
 								 ((c.speedY/sensorChecks))/(maxSpeedY),				//speed in y
 								 (c.position().x/maxXpos),							//final x pos
-							 	 (sensorChecks - c.contact)/maxNonContact,			//main body off ground
+								 (c.position().y/maxYpos),							//final y pos
 								 (c.accHeight/maxAccumHeight),						//accumulated height
 								 (c.maxHeight/maxYpos)];							//Highest y pos
 			c.fitness = dot(this.weights,evalFitness);
