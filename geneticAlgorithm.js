@@ -506,7 +506,7 @@ function Creature(id, world){
 		var pos = this.def.leg1.length;
 		// console.log(this.def.numLegParts + " " + this.def.leg1.length + " " + this.def.leg2.length);
 		if(prob < mrate){
-			if(0.1 < Math.random()){
+			if(0.33 > Math.random()){
 				if(this.def.numLegParts > 1 && this.def.leg1.length > 0){
 					// console.log("removing shit");
 					this.brain.remove(this.def, 1);
@@ -521,7 +521,7 @@ function Creature(id, world){
 
 		prob = Math.random();
 		if(prob < mrate){
-			if(0.1 < Math.random()){
+			if(0.33 > Math.random()){
 				if(this.def.numLegParts > 1 && this.def.leg2.length > 0){
 					// console.log("removing shit");
 					this.brain.remove(this.def,2);
