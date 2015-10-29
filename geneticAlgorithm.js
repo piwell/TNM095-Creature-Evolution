@@ -40,6 +40,7 @@ function GeneticAlgorithm(sworld, dworld, pos){
 	this.elitism;
 	this.weights;
 
+
 	this.setParams = function(params, w){
 		this.popsize 		  	= params[0];
 		this.mutationstrength 	= params[1];
@@ -48,6 +49,10 @@ function GeneticAlgorithm(sworld, dworld, pos){
 		this.brainrecombrate 	= params[4];
 		this.life 				= params[5];
 		this.elitism 			= params[6];
+		// this.resistance 		= params[7];
+
+		this.simulation.resistance = params[7];
+		this.draw.resistance = params[7];
 
 		if(this.popsize<this.elitism){
 			this.elitism = this.popsize;
@@ -259,6 +264,11 @@ function GeneticAlgorithm(sworld, dworld, pos){
 	    }
     }
 
+    this.updateResistance = function(resistance){
+    	this.simulation.updateResistance(resistance);
+    	this.draw.updateResistance(resistance);
+    }
+
     this.intervalNG;
 }
 
@@ -272,6 +282,7 @@ function GASimulation(world, pos){
 	this.created = false;
 	this.camera = pos;
 	this.pos = pos;
+	this.resistance = 0;
 
 	this.initPopulation = function(popsize){
 		this.simulate = true;
@@ -286,7 +297,7 @@ function GASimulation(world, pos){
 	this.createPoulation = function(){
 		this.created = true;
 		for(var i=0; i<this.population.length; i++){
-			this.population[i].create(this.world, this.pos);
+			this.population[i].create(this.world, this.pos, this.resistance);
 		}
 	}
 
@@ -327,6 +338,13 @@ function GASimulation(world, pos){
 		this.camera = pos;
 	}
 
+	this.updateResistance = function(r){
+		this.resistance = r;
+		for(var i=0; i<this.population.length; i++){
+			this.population[i].box2DC.updateResistance(r);
+		}
+	}
+
 	var self = this;
 	this.intervalPS = setInterval(function() {
         self.updatePopulation();}, 100);
@@ -348,6 +366,7 @@ function GADraw(world, pos){
 
 	this.camera = pos;
 	this.pos = pos;
+	this.resistance = 0;
 
 	this.showGen = function(){
 		this.camera = this.pos;
@@ -358,7 +377,7 @@ function GADraw(world, pos){
 
         if((this.generation-1 >= 0) && (this.generation <= this.creatures.length)){
 	        this.creature = this.creatures[this.generation-1];
-	        this.creature.create(this.world, this.pos);
+	        this.creature.create(this.world, this.pos, this.resistance);
 	    }
     }
 
@@ -373,6 +392,13 @@ function GADraw(world, pos){
     		this.camera = this.creature.position();
     	}else{
     		this.camera = this.pos;
+    	}
+    }
+
+    this.updateResistance = function(r){
+    	this.resistance = r;
+    	if(this.creature != null){
+    		this.creature.box2DC.updateResistance(r);
     	}
     }
 
@@ -435,9 +461,9 @@ function Creature(id, world){
 		return this.box2DC.bodies[0].GetWorldCenter().Copy();
 	}
 
-	this.create = function(world, pos){
+	this.create = function(world, pos, r){
 		this.origin = pos;
-		this.box2DC.create(world, pos);
+		this.box2DC.create(world, pos, r);
 		this.lastPos = this.position();
 	}
 
@@ -452,8 +478,10 @@ function Creature(id, world){
 		this.speedY     += Math.abs((this.position().y-this.lastPos.y));
 
 		var height = this.box2DC.heightSensor();
-		this.accHeight	+= (height - (this.origin.y-2))/(this.origin.y-2);
-		this.maxHeight  =  (this.maxHeight>(height-(this.origin.y-2)))? this.maxHeight : height-(this.origin.y-2);
+		this.accHeight	+= Math.abs(this.origin.y-height);// - (this.origin.y-2))/(this.origin.y-2);
+		this.maxHeight  =  (this.maxHeight<height) ? this.maxHeight : height;
+		// this.asccHeight	+= ((this.origin.y-2)-this.position().y);
+		// this.maxHeight  =  (this.maxHeight>((this.origin.y-2)-this.position().y))? this.maxHeight : ((this.origin.y-2)-this.position().y);
 		this.lastPos 	= 	this.position();
 	}
 
@@ -992,9 +1020,9 @@ function Box2DCreature(def){
 	this.torquePivots = new Array();
 
 	this.jointStrengths = new Array();
-	
 
-	this.create = function(world,pos){
+
+	this.create = function(world,pos, r){
 		this.jointStrengths = [];
 		for(var i=0; i<def.leg1.length; i++){
 			this.jointStrengths.push(def.leg1[i].strength);
@@ -1029,10 +1057,11 @@ function Box2DCreature(def){
 	    fixDef.shape.SetAsBox(def.size.x,def.size.y);
 
 	    var body = this.world.CreateBody(bodyDef);
+	    body.SetLinearDamping(r);
 	    body.CreateFixture(fixDef);
 	    this.bodies.push(body);
-	    this.createLeg(body, 1);
-	    this.createLeg(body, 2);
+	    this.createLeg(body, 1, r);
+	    this.createLeg(body, 2, r);
 	}
 
 	this.destroy = function(){
@@ -1053,9 +1082,7 @@ function Box2DCreature(def){
         }
 	}
 
-
-
-	this.createLeg = function(curr, n){
+	this.createLeg = function(curr, n, r){
 		var fixDef  = new b2FixtureDef();
         var bodyDef = new b2BodyDef();
         var weldDef = new b2WeldJointDef();
@@ -1097,6 +1124,7 @@ function Box2DCreature(def){
 	        }
 
 	        var next = this.world.CreateBody(bodyDef);
+	        next.SetLinearDamping(r);
         	next.CreateFixture(fixDef);
 
         	bodyDef.fixedRotation = false;
@@ -1188,6 +1216,12 @@ function Box2DCreature(def){
 		}
 		for(var i=0; i<this.torquePivots.length; i++){
 			this.torquePivots[i].ApplyTorque(50*this.jointStrengths[i]*output[i]);
+		}
+	}
+
+	this.updateResistance = function(r){
+		for(var i=0; i<this.bodies.length; i++){
+			this.bodies[i].SetLinearDamping(r);
 		}
 	}
 }
