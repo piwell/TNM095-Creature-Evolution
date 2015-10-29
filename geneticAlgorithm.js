@@ -498,20 +498,16 @@ function Creature(id, world){
 	}
 
 	this.mutate = function(mrate, mstr){
-		// console.log("mutating");
 		this.brain.mutate(mrate, mstr);
 		this.def.mutate(mrate, mstr);
 
 		var prob = Math.random();
 		var pos = this.def.leg1.length;
-		// console.log(this.def.numLegParts + " " + this.def.leg1.length + " " + this.def.leg2.length);
 		if(prob < mrate){
-			if(0.1 < Math.random()){
+			if(0.33 > Math.random()){
 				if(this.def.numLegParts > 1 && this.def.leg1.length > 0){
-					// console.log("removing shit");
 					this.brain.remove(this.def, 1);
 					this.def.removeLegPart(1);
-
 				}
 			}else{
 				this.brain.add(this.def,1);
@@ -521,9 +517,8 @@ function Creature(id, world){
 
 		prob = Math.random();
 		if(prob < mrate){
-			if(0.1 < Math.random()){
+			if(0.33 > Math.random()){
 				if(this.def.numLegParts > 1 && this.def.leg2.length > 0){
-					// console.log("removing shit");
 					this.brain.remove(this.def,2);
 					this.def.removeLegPart(2);
 				}
