@@ -268,7 +268,8 @@ function getParams(){
               parseFloat(document.getElementById("rrate").value)/100.0,
               parseFloat(document.getElementById("brrate").value)/100.0,
               parseFloat(document.getElementById("life").value),
-              parseFloat(document.getElementById("elit").value)
+              parseFloat(document.getElementById("elit").value),
+              parseFloat(document.getElementById("resistanceRange").value)
             ];
     return param;
 }
@@ -329,4 +330,8 @@ function updateScale(val){
   scale = val;
   debugDraw.SetDrawScale(val); 
   debugDraw2  .SetDrawScale(val); 
+}
+
+function updateResistance(val){
+  genAlg.updateResistance(val);
 }
