@@ -65,6 +65,10 @@ function init() {
             var checked = document.getElementById("followy").checked;
             document.getElementById("followy").checked = !checked;
             toggleFollowY();
+          }else if(event.keyCode == 84){
+            var checked = document.getElementById("followl").checked;
+            document.getElementById("followl").checked = !checked;
+            toggleFollowLeader();
           }else if(event.keyCode == 65){
             genAlg.showPrevGen()
           }else if(event.keyCode == 83){

@@ -86,15 +86,15 @@
               onchange="updateTerrainValue(this.value)">
               <output id="terrainValue">0</output> </div></br>
 
-              <div class="item range" >Gravity: <input id="gravityRange" type ="range" min="0" max="50" step="1" value="10" 
+              <div class="item range" >Gravity: <input id="gravityRange" type ="range" min="0" max="20" step="0.2" value="10" 
               oninput="gravityValue.value = gravityRange.value"
               onchange="updateGravityValue(this.value)">
               <output id="gravityValue">10</output> </div></br>
 
-              <div class="item range" >Air resistance: <input id="resistanceRange" type ="range" min="0" max="2" step="0.1" value="0" 
+              <div class="item range" >Air resistance: <input id="resistanceRange" type ="range" min="0" max="2" step="0.1" value="0.2" 
               oninput="resistanceValue.value = resistanceRange.value"
               onchange="updateResistance(this.value)">
-              <output id="resistanceValue">0</output> </div></br>
+              <output id="resistanceValue">0.2</output> </div></br>
 
               <div class="item"> Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></div></br>
           </div>

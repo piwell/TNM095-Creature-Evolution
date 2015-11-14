@@ -40,7 +40,6 @@ function GeneticAlgorithm(sworld, dworld, pos){
 	this.elitism;
 	this.weights;
 
-
 	this.setParams = function(params, w){
 		this.popsize 		  	= params[0];
 		this.mutationstrength 	= params[1];
@@ -90,22 +89,6 @@ function GeneticAlgorithm(sworld, dworld, pos){
 		this.simulation.createPoulation();
 	}
 
-	this.nextGeneration = function(){
-		this.eval();
-		this.simulation.destroyPopulation();
-		this.simulation.generation++;
-		if(this.simulation.simulate){
-			this.mate();
-			this.mutate();
-			this.simulation.createPoulation();
-
-			if(this.draw.auto){
-				this.draw.generation = this.simulation.generation-1;
-				this.draw.showGen();
-			}
-		}
-	}
-
 	this.eval = function(){
 		var sensorChecks = this.simulation.sensorsChecked; 
 		var maxStill = 0, maxProgess = 0, maxSpeedX = 0, maxSpeedY = 0, maxXpos = 0, maxYpos = 0,
@@ -131,6 +114,8 @@ function GeneticAlgorithm(sworld, dworld, pos){
 			maxAccumHeight 	= (maxAccumHeight>accumHeight) 	? maxAccumHeight:accumHeight;
 			maxHeight 		= (maxHeight>height) 			? maxHeight:height;
 		}
+
+
 		for(var i=0; i<this.simulation.population.length; i++){
 			var c = this.simulation.population[i];
 			var evalFitness = 	[(sensorChecks + c.progress)/(maxProgess),			//progression in x
@@ -147,14 +132,8 @@ function GeneticAlgorithm(sworld, dworld, pos){
 
 		this.simulation.population.sort(function(a,b){return b.fitness - a.fitness});
 		var c = this.simulation.population[0];
-		//print absolute fitness in console to compare and analyse result
-		// console.log("Generation " + this.simulation.generation + ": ");
-		// for(var i=0; i<1; i++){
-		// 	var c = this.simulation.population[i];
-		// 	var progressFitness = 0.5*(c.position().x/100.0)+0.5*((sensorChecks+c.progress)/(2*sensorChecks));
-		// 	console.log("Fitness " + i +": " + progressFitness);
-		// }
-		// console.log("");
+		var progressFitness = 0.5*((c.position().x-this.pos.x)/100.0)+0.5*((c.contact)/(sensorChecks));
+		console.log(this.simulation.generation + "\t" + progressFitness + "\t\t" + (c.position().x-this.pos.x) + "\t" + (sensorChecks-c.contact)/(sensorChecks));
 		this.draw.creatures.push(c.copy());
 
 		this.simulation.sensorsChecked = 0;
@@ -213,7 +192,7 @@ function GeneticAlgorithm(sworld, dworld, pos){
 
     this.showPrevGen = function(){
     	this.draw.generation--;
-        if(this.draw.generation >= 0){
+        if(this.draw.generation >= this.draw.lowestGeneration){
             this.draw.showGen(this.pos);
         }else{
             this.draw.generation++;
@@ -265,6 +244,41 @@ function GeneticAlgorithm(sworld, dworld, pos){
     	this.simulation.updateResistance(resistance);
     	this.draw.updateResistance(resistance);
     }
+
+    this.restart = function(){
+		this.destroyAll();
+		this.simulation.generation = 0;
+		this.draw.generation = 0;
+		this.simulation.initPopulation(this.popsize);
+		var self = this;
+    	this.intervalNG = setInterval(function() {
+        	self.nextGeneration();}, this.life*1000);
+    	this.create(pos);
+	}
+
+	this.nextGeneration = function(){
+		this.eval();
+		this.simulation.destroyPopulation();
+		this.simulation.generation++;
+		// if(this.simulation.generation > 50){
+		// 	this.restart();
+		// 	return;
+		// }
+		if(this.simulation.simulate){
+			this.mate();
+			this.mutate();
+			this.simulation.createPoulation();
+
+			if(this.draw.auto){
+				if(this.simulation.generation>1001){
+					this.draw.lowestGeneration++;
+					this.draw.creatures.shift();
+				}
+				this.draw.generation = this.simulation.generation-1;
+				this.draw.showGen();
+			}
+		}
+	}
 
     this.intervalNG;
 }
@@ -365,6 +379,7 @@ function GADraw(world, pos){
 	this.pos = pos;
 	this.resistance = 0;
 
+	this.lowestGeneration = 0;
 	this.showGen = function(){
 		this.camera = this.pos;
         if(this.creature != null){
@@ -372,8 +387,8 @@ function GADraw(world, pos){
             this.creature = null;
         }
 
-        if((this.generation-1 >= 0) && (this.generation <= this.creatures.length)){
-	        this.creature = this.creatures[this.generation-1];
+        if((this.generation-1 >= 0) && (this.generation-this.lowestGeneration <= this.creatures.length)){
+	        this.creature = this.creatures[this.generation-1-this.lowestGeneration];
 	        this.creature.create(this.world, this.pos, this.resistance);
 	    }
     }
@@ -431,7 +446,7 @@ function Creature(id, world){
 
 		this.box2DC = new Box2DCreature(this.def);
 		
-		this.brain  = new Brain(2+3*this.def.numLegParts, this.def.numLegParts);
+		this.brain  = new Brain(2+4*this.def.numLegParts, this.def.numLegParts);
 		this.brain.init();
 	}
 
@@ -475,8 +490,7 @@ function Creature(id, world){
 		this.speedY     += Math.abs((this.position().y-this.lastPos.y));
 
 		var height = this.box2DC.heightSensor();
-
-		this.accHeight	+= Math.abs(this.origin.y-height);// - (this.origin.y-2))/(this.origin.y-2);
+		this.accHeight	+= (this.origin.y-height);// - (this.origin.y-2))/(this.origin.y-2);
 		this.maxHeight  =  (this.maxHeight<height) ? this.maxHeight : height;
 		// this.asccHeight	+= ((this.origin.y-2)-this.position().y);
 		// this.maxHeight  =  (this.maxHeight>((this.origin.y-2)-this.position().y))? this.maxHeight : ((this.origin.y-2)-this.position().y);
@@ -534,9 +548,11 @@ function Brain(numInput, numOutput){
     this.numInput  = numInput;
     this.numOutput = numOutput;
     this.hidden = [];
+    this.hidden2 = [];
     this.output = [];
 
-    this.numHidden = 2*numInput;
+    this.numHidden = 10*numInput;
+    this.numHidden2 =5*numInput;
 
     this.oldOutput = [];
     for(var i=0; i<this.numOutput; i++){
@@ -551,10 +567,16 @@ function Brain(numInput, numOutput){
 	        }
 	    }
 
+	    for(var i=0; i<this.numHidden2; i++){
+	        this.hidden2[i] = [];
+	        for(var j=0; j<this.numHidden; j++){
+	            this.hidden2[i][j] = 2*Math.random()-1;
+	        }
+	    }
 
 	    for(var i=0; i<this.numOutput; i++){
 	        this.output[i] = [];
-	        for(var j=0; j<this.numHidden; j++){
+	        for(var j=0; j<this.numHidden2; j++){
 	            this.output[i][j] = 2*Math.random()-1;
 	        }
 	    }
@@ -564,10 +586,15 @@ function Brain(numInput, numOutput){
     this.copy = function(){
         var b = new Brain(this.numInput, this.numOutput);
         b.hidden = [];
+        b.hidden2 = [];
         b.output = [];
 
         for(var i=0; i<this.numHidden; i++){
             b.hidden[i] = this.hidden[i].slice();
+        }
+
+        for(var i=0; i<this.numHidden2; i++){
+            b.hidden2[i] = this.hidden2[i].slice();
         }
 
         for(var i=0; i<this.numOutput; i++){
@@ -594,10 +621,14 @@ function Brain(numInput, numOutput){
             hiddenOutput[i] = transfer(dot(input,this.hidden[i]));
         }
 
+        var hiddenOutput2 = [];
+        for(var i=0; i<this.numHidden2; i++){
+            hiddenOutput2[i] = transfer(dot(hiddenOutput,this.hidden2[i]));
+        }
+
         var output = [];
         for(var i=0; i<this.numOutput; i++){
-
-            output[i] = transfer(dot(hiddenOutput,this.output[i]));
+            output[i] = transfer(dot(hiddenOutput2,this.output[i]));
         }
 
         this.oldOutput = output.slice();
@@ -621,6 +652,9 @@ function Brain(numInput, numOutput){
     	if(prob < brate) this.changeBrain(this.hidden,  b.hidden );
 
     	prob = Math.random();
+    	if(prob < brate) this.changeBrain(this.hidden2,  b.hidden2);
+
+    	prob = Math.random();
     	if(prob < brate) this.changeBrain(this.output,  b.output );
     }
 
@@ -634,8 +668,17 @@ function Brain(numInput, numOutput){
             }
         }
 
-        for(var i=0; i<this.numOutput; i++){
+        for(var i=0; i<this.numHidden2; i++){
             for(var j=0; j<this.numHidden; j++){
+                var prob = Math.random();
+                if(prob < /*mutation rate*/ mrate){
+                    this.hidden2[i][j] += 2*mstr*Math.random()-mstr;
+                }
+            }
+        }
+
+        for(var i=0; i<this.numOutput; i++){
+            for(var j=0; j<this.numHidden2; j++){
                 var prob = Math.random();
                 if(prob < /*mutation rate*/ mrate){
                     this.output[i][j] += 2*mstr*Math.random()-mstr;
@@ -647,11 +690,13 @@ function Brain(numInput, numOutput){
     this.add = function(def, n){
     	var oldNumInput  = this.numInput;
     	var oldNumHidden = this.numHidden;
+    	var oldNumHidden2 = this.numHidden2;
     	var oldNumOutput = this.numOutput;
 
-    	this.numInput += 3;
+    	this.numInput += 4;
     	this.numOutput++;
-    	this.numHidden = 2*this.numInput;
+    	this.numHidden 	= 10*this.numInput;
+    	this.numHidden2 = 5*this.numInput;
 
     	for(var i=0; i<oldNumOutput-this.numOutput; i++){
     		this.oldOutput.push(0);
@@ -669,6 +714,7 @@ function Brain(numInput, numOutput){
 	    var ol = this.hidden[0].length
     	for(var i=0; i<oldNumHidden; i++){
     		this.hidden[i].splice(posc,0,(2*Math.random()-1));
+    		this.hidden[i].splice(posc+1,0,(2*Math.random()-1));
     		this.hidden[i].splice(posa,0,(2*Math.random()-1));//,(2*Math.random()-1));
     		this.hidden[i].push((2*Math.random()-1));
     	}
@@ -680,15 +726,28 @@ function Brain(numInput, numOutput){
     		}
     	}
 
-    	for(var i=0; i<oldNumOutput; i++){
+    	for(var i=0; i<oldNumHidden2; i++){
     		for(var j=0; j<(this.numHidden-oldNumHidden); j++){
+    			this.hidden2[i].push(2*Math.random()-1);
+    		}
+    	}
+
+	    for(var i=oldNumHidden2; i<this.numHidden2; i++){
+	        this.hidden2[i] = [];
+	        for(var j=0; j<this.numHidden; j++){
+	            this.hidden2[i][j] = 2*Math.random()-1;
+	        }
+	    }
+
+    	for(var i=0; i<oldNumOutput; i++){
+    		for(var j=0; j<(this.numHidden2-oldNumHidden2); j++){
     			this.output[i].push(2*Math.random()-1);
     		}
     	}
 
 	    for(var i=oldNumOutput; i<this.numOutput; i++){
 	        this.output[i] = [];
-	        for(var j=0; j<this.numHidden; j++){
+	        for(var j=0; j<this.numHidden2; j++){
 	            this.output[i][j] = 2*Math.random()-1;
 	        }
 	    }
@@ -697,11 +756,13 @@ function Brain(numInput, numOutput){
     this.remove = function(def, n){
     	var oldNumInput  = this.numInput;
     	var oldNumHidden = this.numHidden;
+    	var oldNumHidden2 = this.numHidden2;
     	var oldNumOutput = this.numOutput;
     	// if(def.numLegParts > 2){
-	   		this.numInput -= 3; //2+3*(def.numLegParts-1);
+	   		this.numInput -= 4; //2+3*(def.numLegParts-1);
 	    	this.numOutput--;// = def.numLegParts-1;
-	    	this.numHidden = 2*this.numInput;
+	    	this.numHidden  = 10*this.numInput;
+	    	this.numHidden2 = 5*this.numInput;
 
 	    	var posc, posa;
 	    	if(n==1){
@@ -714,13 +775,19 @@ function Brain(numInput, numOutput){
 
 		    var ol = this.hidden[0].length;
 		    for(var i=0; i<this.hidden.length; i++){
-	    		this.hidden[i].splice(posc,1);
+	    		this.hidden[i].splice(posc,2);
 	    		this.hidden[i].splice(posa,1);//,(2*Math.random()-1));
 	    		this.hidden[i].pop();
 	    	}
 
-	    	for(var i=0; i<oldNumOutput; i++){
+	    	for(var i=0; i<oldNumHidden2; i++){
 	    		for(var j=0; j<(oldNumHidden-this.numHidden); j++){
+	    			this.hidden2[i].pop();
+	    		}
+	    	}
+
+	    	for(var i=0; i<oldNumOutput; i++){
+	    		for(var j=0; j<(oldNumHidden2-this.numHidden2); j++){
 	    			this.output[i].pop();
 	    		}
 	    	}
@@ -971,7 +1038,7 @@ function LegPartDef(size){
 	    if(prob < mrate){
 	    	this.strength += 2*mstr*Math.random()-mstr;
 	    	if(this.strength < 0.1) this.strength = 0.1;
-	    	if(this.strength > 4.0) this.strength = 4.0;
+	    	// if(this.strength > 4.0) this.strength = 4.0;
 	    }
     }
 }
@@ -1014,8 +1081,8 @@ function Box2DCreature(def){
 	    newpos.Add(new b2Vec2(0,-(lengthy)));
 	    bodyDef.position.SetV(newpos);
 
-	    fixDef.density = 5.0;
-	    fixDef.friction = 0.2;
+	    fixDef.density = 6.0;
+	    fixDef.friction = 1.0;
 	    fixDef.restitution = 0.0;
 
 	    // fixDef.shape = shapePart(this);
@@ -1054,8 +1121,8 @@ function Box2DCreature(def){
         var weldDef = new b2WeldJointDef();
         var revDef  = new b2RevoluteJointDef();
 
-        fixDef.density = 4.0;
-        fixDef.friction = 2.0;
+        fixDef.density = 1.0;
+        fixDef.friction = 1.0;
         fixDef.restitution = 0.0;
 
         fixDef.filter.groupIndex = -1;
@@ -1154,8 +1221,8 @@ function Box2DCreature(def){
 	this.heightSensor = function(){
 		var h = this.pos().y;
 		for(var i=1; i<this.bodies.length; i++){
-			var bh = this.bodies[i].GetPosition().y;
-			if(bh>h) h = bh;
+			var bh = this.bodies[i].GetWorldCenter().y;
+			h = (bh>h)? bh:h;
 		}
 		return h;
 	}
@@ -1172,6 +1239,7 @@ function Box2DCreature(def){
 
 		for(var i=0; i<this.joints.length; i++){
 			input.push(Math.cos(this.joints[i].GetJointAngle()));
+			input.push(Math.sin(this.joints[i].GetJointAngle()));
 		}
 		return input;
 	}
