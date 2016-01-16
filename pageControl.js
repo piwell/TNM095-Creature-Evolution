@@ -49,26 +49,26 @@ function init() {
         // window.setInterval(function(){updateHighscore(highscoreCanvas, genAlg.highscore);}, 1000/60);
 
         document.addEventListener('keydown', function(event) {
-          if(event.keyCode == 87) {
-            var checked = document.getElementById("showSim").checked;
-            document.getElementById("showSim").checked = !checked;
-            toggleShowSim();
-          }else if(event.keyCode == 81){
+          // if(event.keyCode == 87) {
+          //   var checked = document.getElementById("showSim").checked;
+          //   document.getElementById("showSim").checked = !checked;
+          //   toggleShowSim();
+          if(event.keyCode == 81){
             var checked = document.getElementById("simulate").checked;
             document.getElementById("simulate").checked = !checked;
             toggleSim();    
-          }else if(event.keyCode == 69){
+          }else if(event.keyCode == 87){
             var checked = document.getElementById("auto").checked;
             document.getElementById("auto").checked = !checked;
             toggleAuto();
-          }else if(event.keyCode == 89){
-            var checked = document.getElementById("followy").checked;
-            document.getElementById("followy").checked = !checked;
-            toggleFollowY();
-          }else if(event.keyCode == 84){
-            var checked = document.getElementById("followl").checked;
-            document.getElementById("followl").checked = !checked;
-            toggleFollowLeader();
+          // }else if(event.keyCode == 89){
+          //   var checked = document.getElementById("followy").checked;
+          //   document.getElementById("followy").checked = !checked;
+          //   toggleFollowY();
+          // }else if(event.keyCode == 84){
+          //   var checked = document.getElementById("followl").checked;
+          //   document.getElementById("followl").checked = !checked;
+          //   toggleFollowLeader();
           }else if(event.keyCode == 65){
             genAlg.showPrevGen()
           }else if(event.keyCode == 83){
