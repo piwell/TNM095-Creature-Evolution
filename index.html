@@ -51,10 +51,9 @@
      	  
         <div id="show" width="800" style = "float:left">
         	<canvas id="drwCanvas" width="800" height="400"></canvas></br>
-        	<div id="genDisp"> 
-            <h3>Showing generation: <span id="showGen">0</span>  &nbsp &nbsp Simulating generation: <span id="simGen">0</span> </h3>
-          </div>
-          <canvas id="simCanvas" width="800" height="400"></canvas></br>
+            <h3>Showing generation: <span id="showGen">0</span> </h3>
+          	<canvas id="simCanvas" width="800" height="400"></canvas></br>
+          	<h3>Simulating generation: <span id="simGen">0</span> </h3>
         </div>
      	 
         <div id="info" style = "float:left">
@@ -63,10 +62,10 @@
             <h1>Controls:</h1>
               <div class="left">
                 <div class="item">Simulate (q):               <input class="right" type="checkbox" id="simulate" onchange="toggleSim()" checked> </div></br>
-                <div class="item">Show simulation (w):        <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked></div></br>
-                <div class="item">Auto show generations (e):  <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked></div></br>
-                <div class="item">Follow leader (t):          <input class="right" type="checkbox" onchange="toggleFollowLeader()" id="followl" checked></div></br>
-                <div class="item">Follow in y (y):            <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></div></br>
+                <!--<div class="item">Show simulation (w):        <input class="right" type="checkbox" id="showSim" onchange="toggleShowSim()" checked></div></br>-->
+                <div class="item">Show simulated generation (e):  <input class="right" type="checkbox" onchange="toggleAuto()" id="auto" checked></div></br>
+                <!--<div class="item">Follow leader (t):          <input class="right" type="checkbox" onchange="toggleFollowLeader()" id="followl" checked></div></br>-->
+                <!--<div class="item">Follow in y (y):            <input class="right" type="checkbox" onchange="toggleFollowY()" id="followy"></div></br>-->
 
                 <div class="item range">Scale:<input id="scaleRange" type ="range" min="0" max="100" step="5" value="30" 
                 oninput="scaleValue.value = scaleRange.value"
@@ -81,7 +80,7 @@
           </div>
           <div id = "word">
             <h1> World </h1>
-              <div class="item range">Terrain: <input id="terrainRange" type ="range" min="0" max="5.0" step="0.5" value="0" 
+              <div class="item range">Terrain Roughness: <input id="terrainRange" type ="range" min="0" max="5.0" step="0.5" value="0" 
               oninput="terrainValue.value = terrainRange.value"
               onchange="updateTerrainValue(this.value)">
               <output id="terrainValue">0</output> </div></br>
@@ -91,23 +90,23 @@
               onchange="updateGravityValue(this.value)">
               <output id="gravityValue">10</output> </div></br>
 
-              <div class="item range" >Air resistance: <input id="resistanceRange" type ="range" min="0" max="2" step="0.1" value="0.2" 
+              <!--<div class="item range" >Air resistance: <input id="resistanceRange" type ="range" min="0" max="2" step="0.1" value="0.2" 
               oninput="resistanceValue.value = resistanceRange.value"
               onchange="updateResistance(this.value)">
-              <output id="resistanceValue">0.2</output> </div></br>
+              <output id="resistanceValue">0.2</output> </div></br>-->
 
-              <div class="item"> Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></div></br>
+              <!--<div class="item"> Walls: &nbsp <input type="checkbox" onchange="toggleWalls()" id="walls"></div></br>-->
           </div>
           <div id="parameters">
             <h1>Parameters:</h1>
             <div class="left">
-              <div class="item"> Population:    				 	      <input type="text"  class="right" id="numPop" value="30"></div></br>
+              <div class="item"> Population number:    				 	      <input type="text"  class="right" id="numPop" value="30"></div></br>
               <div class="item">Mutation strenght: (%)          <input type="text"  class="right" id="mstr"   value="10"></div></br>
               <div class="item">Mutation rate: (%)              <input type="text"  class="right" id="mrate"  value="10"></div></br>
-              <div class="item">Recombination rate: (%)         <input type="text"  class="right" id="rrate"  value="80"></div></br>
+              <div class="item">Body Recombination rate: (%)         <input type="text"  class="right" id="rrate"  value="80"></div></br>
               <div class="item">Brain Recombination rate: (%)   <input type="text"  class="right" id="brrate"  value="1"></div></br>
-              <div class="item">Lifetime:                       <input type="text"  class="right" id="life"   value="60"></div></br>
-              <div class="item">Elit:                           <input type="text"  class="right" id="elit"   value="2"></div></br>
+              <div class="item">Simulation Lifetime (s):                       <input type="text"  class="right" id="life"   value="60"></div></br>
+              <div class="item" title="Number of creture to survive to the next generation">Elitism:                           <input type="text"  class="right" id="elit"   value="2"></div></br>
             </div>
           
           <div id="weights">
@@ -118,10 +117,10 @@
               <div class="item">Main body off ground: <input type="text" class="w right" id="w2" value="0.1"></div></br>
               <div class="item">Speed in x:           <input type="text" class="w right" id="w3" value="0.2"></div></br>
               <div class="item">Speed in y:           <input type="text" class="w right" id="w4" value="0.0"></div></br>
-              <div class="item">x-pos from origin:    <input type="text" class="w right" id="w5" value="0.3"></div></br>
-              <div class="item">y-pos from origin:    <input type="text" class="w right" id="w6" value="0.0"></div></br>
+              <div class="item">Final x-pos from origin:    <input type="text" class="w right" id="w5" value="0.3"></div></br>
+              <div class="item">Final y-pos from origin:    <input type="text" class="w right" id="w6" value="0.0"></div></br>
               <div class="item">Accumelated height:   <input type="text" class="w right" id="w7" value="0.0"></div></br>
-              <div class="item">Highest y pos:        <input type="text" class="w right" id="w8" value="0.0"></div></br>
+              <div class="item">Highest recorded y pos:        <input type="text" class="w right" id="w8" value="0.0"></div></br>
               <input type="button" id="start" value="Start! (n)" onclick="startSimulation();">
               <input type="button" id="start" value="Change (m)" onclick="change();">
             </div>

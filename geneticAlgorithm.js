@@ -50,8 +50,8 @@ function GeneticAlgorithm(sworld, dworld, pos){
 		this.elitism 			= params[6];
 		// this.resistance 		= params[7];
 
-		this.simulation.resistance = params[7];
-		this.draw.resistance = params[7];
+		this.simulation.resistance = 0.1;//params[7];
+		this.draw.resistance = 0.1;//params[7];
 
 		if(this.popsize<this.elitism){
 			this.elitism = this.popsize;

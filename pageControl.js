@@ -167,8 +167,8 @@ function init() {
   if(createCreatureAgain)
     genAlg.draw.showGen();
 
-  if(walls)
-    createWalls();
+  //if(walls)
+  //  createWalls();
 }
 
 function toggleWalls(){
@@ -233,7 +233,7 @@ function update(world,canvas, isSim){
     ctx.save();
 
     var x, y;
-    y = (followY)? -(camera.y)*scale+canvas.height/2: -(pos.y-100/scale)*scale+canvas.height/2;
+    y = (followY)? -(camera.y)*scale+canvas.height/2: -(pos.y-180/scale)*scale+canvas.height/2;
     x = (followLeader) ? -camera.x*scale+canvas.width/2 : -pos.x*scale+canvas.width/2;
     // y = 0;
     // x = 0;
@@ -247,8 +247,8 @@ function update(world,canvas, isSim){
 }
 
 function updateGenerationDisplay(canvas, txt, g){
-    document.querySelector('#genDisp #showGen').innerHTML = genAlg.draw.generation;
-    document.querySelector('#genDisp #simGen').innerHTML =  genAlg.simulation.generation;
+    document.querySelector('#showGen').innerHTML = genAlg.draw.generation;
+    document.querySelector('#simGen').innerHTML =  genAlg.simulation.generation;
 }
 
 function updateTerrainValue(val){
@@ -272,8 +272,8 @@ function getParams(){
               parseFloat(document.getElementById("rrate").value)/100.0,
               parseFloat(document.getElementById("brrate").value)/100.0,
               parseFloat(document.getElementById("life").value),
-              parseFloat(document.getElementById("elit").value),
-              parseFloat(document.getElementById("resistanceRange").value)
+              parseFloat(document.getElementById("elit").value)
+              // parseFloat(document.getElementById("resistanceRange").value)
             ];
     return param;
 }
