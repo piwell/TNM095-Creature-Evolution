@@ -551,7 +551,7 @@ function Brain(numInput, numOutput){
     this.hidden2 = [];
     this.output = [];
 
-    this.numHidden = 10*numInput;
+    this.numHidden = 10*numInput;	
     this.numHidden2 =5*numInput;
 
     this.oldOutput = [];
